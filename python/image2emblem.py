@@ -203,7 +203,7 @@ if __name__ == '__main__':
     # of an F-Zero GX emblem file's banner, in the same pixel format as any
     # emblem file. (The left 2/3rds of the banner are the same for
     # every emblem.)
-    banner_base_file = open("emblem_banner_base", 'rb')
+    banner_base_file = open("../common/emblem_banner_base", 'rb')
     banner_bytes = bytearray()
     img32_data = img32.getdata()
     
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     # emblem_icon is a pre-existing file that contains an F-Zero GX
     # emblem file's icon, in the same pixel format as any emblem file.
     # (The icon is the same for every emblem.)
-    icon_file = open("emblem_icon", 'rb')
+    icon_file = open("../common/emblem_icon", 'rb')
     icon_bytes = icon_file.read()
     
     
