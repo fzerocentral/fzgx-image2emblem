@@ -1,0 +1,18 @@
+Raphael Tetreault
+thestarknebula@gmail.com
+
+ImageToEmblem Release 1.00
+Code originally by Yoshifan - @Yoshifan28
+Code ported by Raphael Tetreault - @StarkNebula
+Special thanks to Ralf of gc-forever for the checksum algorithm
+
+
+Release:
+
+1.00
+Initial release.
+
+
+Bundled Builds
+Hopefully the builds in the apps directory work for each platform. Only the Mac build was
+tested. Please report any issues to the above mentioned email.
