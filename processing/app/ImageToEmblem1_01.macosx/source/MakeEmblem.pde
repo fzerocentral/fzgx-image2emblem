@@ -49,7 +49,7 @@ class MakeEmblem{
       outputName += "_";
     }
     
-    outputName = outputName.substring(0, 15 - versionNumber.length());
+    outputName = outputName.substring(0, 14 - versionNumber.length());
     outputFileName = "fze" + "_" + outputName + "_" + hex(timeStamp.CurrentDate(), 8) + versionNumber + ".dat";
 
     
