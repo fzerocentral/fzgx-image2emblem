@@ -1,0 +1,13 @@
+Simply open the file in an editor and type in a prefix. Ex: FZGX
+The result would be a something like this:
+
+Original file: falcon.png
+Prefix       : FZGX
+Resultant    : fze_FZGXfalcon_1CF35408v1.01.dat
+
+This is useful for organizing emblems inside the F-Zero GX’s emblem menu,
+as it sorts them alphabetically.
+
+WARNING: Not all characters are valid and nothing is tested at this point.
+         If memory serves correct, the emblems names cannot include *, and
+         likely does not accept many non-alphabetical characters.

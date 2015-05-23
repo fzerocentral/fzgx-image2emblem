@@ -1,19 +1,25 @@
 Raphael Tetreault
 thestarknebula@gmail.com
 
-ImageToEmblem
+//ImageToEmblem//
 
 Code originally by Yoshifan - @Yoshifan28
 Code ported by Raphael Tetreault - @StarkNebula
 Special thanks to Ralf of gc-forever for the checksum algorithm
 
-
-Release Notes:
-
-1.00
-Initial release.
-
-
-Bundled Builds
+//Bundled Builds//
 Hopefully the builds in the apps directory work for each platform. Only the Mac build was
 tested. Please report any issues to the above mentioned email.
+
+
+//Revision History://
+
+1.00
+-Initial release.
+
+1.01
+-Fixed a bug where files would sometimes not get converted.
+-Revised file naming conventions upon output.
+-Added possibility to add prefixes in file naming.
+
+
