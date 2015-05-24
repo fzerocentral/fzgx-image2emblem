@@ -31,7 +31,7 @@ class MakeEmblem{
   
     //Create a "complex" file name. It's a mix of the format standard file with a
     //real filename in it, as well as a reference to the convert's version number.
-    //Format: fze + (_filename_) + (date in hex) + (version number) + .dat
+    //Format: fze0_ + (filename) + (date in hex (3 characters)) + .dat
     
     String[] prefix = loadStrings("data/prefix");
     String outputName;
@@ -45,12 +45,12 @@ class MakeEmblem{
     }
         
     //If prefix + filename is not 10 characters long, append _ until it is
-    while(outputName.length() < 10){
+    while(outputName.length() < 18){
       outputName += "_";
     }
     
-    outputName = outputName.substring(0, 14 - versionNumber.length());
-    outputFileName = "fze" + "_" + outputName + "_" + hex(timeStamp.CurrentDate(), 8) + versionNumber + ".dat";
+    outputName = outputName.substring(0, 18);
+    outputFileName = "fze0_" + outputName + "_" + hex(timeStamp.CurrentDate(), 3) + ".dat";
 
     
     //Set region. Not sure if it actually matters or not
@@ -192,11 +192,17 @@ class MakeEmblem{
  
     CropEmblemEdges();
     
+    //Add comment to the last bytes of the file. HAS TO BE 48 BYTES LONG.
+    String comment = "Emblem created  w/ ImageToEmblem" + versionNumber + "  " + timeStamp.CurrentDate();
+    
    /* 0x0000 */ emblemFile = header;
    /* 0x00A0 */ emblemFile = concat(emblemFile, bannerData);
    /* 0x18A0 */ emblemFile = concat(emblemFile, loadBytes("data/resources/emblem_icon"));
    /* 0x20A0 */ emblemFile = concat(emblemFile, emblemImageData);
-   /* 0x40A0 */ emblemFile = concat(emblemFile, new byte[0x2000 - 0x60]); //Null at the end, minus size of header data
+   /* 0x40A0 */ emblemFile = concat(emblemFile, new byte[0x2000 - 0xA0]); //Null at the end, minus size of header data
+   /* 0x6020 */ emblemFile = concat(emblemFile, comment.getBytes());
+   /* 0x6050 */ emblemFile = concat(emblemFile, new byte[0x10]);
+
    
    //Old debug stuff
    //println("Header: " + hex(header.length));
