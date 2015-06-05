@@ -11,6 +11,21 @@ import math
 import struct
 from PIL import Image
 
+
+def short_filename(filename, seconds_since_start_of_2000):
+    if not filename:
+       return "fze0200002000{:14X}.dat".format(int(seconds_since_start_of_2000 * 40500000))
+       
+    if len(filename) > 18: 
+        raise ValueError("emblem-filename should be 18 characters or less.")
+
+    return "fze1-" + filename + ".dat"
+
+
+def emblem_full_filename(filename):
+    return "8P-GFZE-" + filename + ".gci"
+
+
 def checksum(post_checksum_bytes):
     checksum = 0xFFFF
     generator_polynomial = 0x8408
@@ -147,15 +162,10 @@ if __name__ == '__main__':
     seconds_since_start_of_2000 = (now - start_of_2000).total_seconds()
 
 
-    if args.emblem_filename:
-        if len(args.emblem_filename) > 18:
-            raise ValueError("emblem-filename should be 18 characters or less.")
-        emblem_short_filename = "fze1-" + args.emblem_filename + ".dat"
-    else:
-        emblem_short_filename = "fze0200002000{:14X}.dat".format(
-            int(seconds_since_start_of_2000 * 40500000)
-        )
-    emblem_full_filename = "8P-GFZE-" + emblem_short_filename + ".gci"
+    emblem_short_filename = short_filename(args.emblem_filename, seconds_since_start_of_2000)
+    emblem_full_filename = emblem_full_filename(emblem_short_filename)
+
+
     header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
     more_info_bytes = setup_more_info_bytes(args, now)
     img = Image.open(args.image_filename)
