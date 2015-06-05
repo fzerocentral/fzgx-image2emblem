@@ -65,6 +65,25 @@ def setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000):
 
     return header_bytes
 
+def setup_more_info_bytes(args, now):
+    more_info_bytes = bytearray()
+    # Constant bytes
+    more_info_bytes += bytearray([4, 1])
+    # Game title followed by 0 padding until 32 bytes
+    more_info_bytes += bytearray("F-ZERO GX")
+    more_info_bytes += bytearray(32 - len("F-ZERO GX"))
+    # File comment followed by 0 padding until 60 bytes
+    comment_str = now.strftime("%y/%m/%d %H:%M")
+
+    if args.additional_comment:
+        comment_str += " (Created using third party code)"
+
+    more_info_bytes += bytearray(comment_str)
+    more_info_bytes += bytearray(60 - len(comment_str))
+
+    return more_info_bytes
+
+
 if __name__ == '__main__':
 
     # Parse command line arguments.
@@ -137,23 +156,8 @@ if __name__ == '__main__':
             int(seconds_since_start_of_2000 * 40500000)
         )
     emblem_full_filename = "8P-GFZE-" + emblem_short_filename + ".gci"
-    
-    
-    more_info_bytes = bytearray()
-    # Constant bytes
-    more_info_bytes += bytearray([4, 1])
-    # Game title followed by 0 padding until 32 bytes
-    more_info_bytes += bytearray("F-ZERO GX")
-    more_info_bytes += bytearray(32 - len("F-ZERO GX"))
-    # File comment followed by 0 padding until 60 bytes
-    comment_str = now.strftime("%y/%m/%d %H:%M")
-    if args.additional_comment:
-        comment_str += " (Created using third party code)"
-    more_info_bytes += bytearray(comment_str)
-    more_info_bytes += bytearray(60 - len(comment_str))
-    
-    
     header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
+    more_info_bytes = setup_more_info_bytes(args, now)
     img = Image.open(args.image_filename)
     
     # Convert the image to RGBA.
