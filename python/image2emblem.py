@@ -29,6 +29,41 @@ def checksum(post_checksum_bytes):
 
     return bytearray(struct.pack(">H", checksum))
 
+def setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000):
+    print emblem_short_filename
+    print seconds_since_start_of_2000
+    header_bytes = bytearray()
+
+    # Constant bytes
+    header_bytes += bytearray("GFZE8P")
+    header_bytes += bytearray([0xFF, 2])
+
+    # Short filename followed by 0 padding until 32 bytes
+    header_bytes += bytearray(emblem_short_filename)
+    header_bytes += bytearray(32 - len(emblem_short_filename))
+
+    # Timestamp
+    header_bytes += bytearray(
+        struct.pack(">I", int(seconds_since_start_of_2000)))
+
+    # Constant bytes
+    header_bytes += bytearray([0, 0, 0, 0x60, 0, 2, 0, 3, 4])
+
+    # Copy count (1 byte)
+    header_bytes += bytearray([0])
+
+    # Start block (2 bytes)
+    #
+    # TODO: Check if there is a better value to use here besides 0.
+    # Want to avoid the following error when we try to delete the file from a
+    # memcard in Dolphin: "Order of files in the File Directory do not match
+    # the block order[.] Right click and export all of the saves, and import
+    # the saves to a new memcard"
+    header_bytes += bytearray(struct.pack(">H", 0))
+    # Constant bytes
+    header_bytes += bytearray([0, 3, 0xFF, 0xFF, 0, 0, 0, 4])
+
+    return header_bytes
 
 if __name__ == '__main__':
 
@@ -104,31 +139,6 @@ if __name__ == '__main__':
     emblem_full_filename = "8P-GFZE-" + emblem_short_filename + ".gci"
     
     
-    header_bytes = bytearray()
-    # Constant bytes
-    header_bytes += bytearray("GFZE8P")
-    header_bytes += bytearray([0xFF, 2])
-    # Short filename followed by 0 padding until 32 bytes
-    header_bytes += bytearray(emblem_short_filename)
-    header_bytes += bytearray(32 - len(emblem_short_filename))
-    # Timestamp
-    header_bytes += bytearray(
-        struct.pack(">I", int(seconds_since_start_of_2000)))
-    # Constant bytes
-    header_bytes += bytearray([0, 0, 0, 0x60, 0, 2, 0, 3, 4])
-    # Copy count (1 byte)
-    header_bytes += bytearray([0])
-    # Start block (2 bytes)
-    #
-    # TODO: Check if there is a better value to use here besides 0.
-    # Want to avoid the following error when we try to delete the file from a
-    # memcard in Dolphin: "Order of files in the File Directory do not match
-    # the block order[.] Right click and export all of the saves, and import
-    # the saves to a new memcard"
-    header_bytes += bytearray(struct.pack(">H", 0))
-    # Constant bytes
-    header_bytes += bytearray([0, 3, 0xFF, 0xFF, 0, 0, 0, 4])
-    
     more_info_bytes = bytearray()
     # Constant bytes
     more_info_bytes += bytearray([4, 1])
@@ -143,6 +153,7 @@ if __name__ == '__main__':
     more_info_bytes += bytearray(60 - len(comment_str))
     
     
+    header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
     img = Image.open(args.image_filename)
     
     # Convert the image to RGBA.
