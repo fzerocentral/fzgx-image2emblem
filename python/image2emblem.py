@@ -11,6 +11,24 @@ import math
 import struct
 from PIL import Image
 
+def checksum(post_checksum_bytes):
+    checksum = 0xFFFF
+    generator_polynomial = 0x8408
+
+    for byte_as_number in post_checksum_bytes:
+        checksum = checksum ^ byte_as_number
+
+        for i in xrange(8):
+            if checksum & 1 == 1:
+                checksum = (checksum >> 1) ^ generator_polynomial
+            else:
+                checksum = checksum >> 1
+
+    # Flip all the bits
+    checksum = checksum ^ 0xFFFF
+
+    return bytearray(struct.pack(">H", checksum))
+
 
 if __name__ == '__main__':
 
@@ -242,28 +260,9 @@ if __name__ == '__main__':
     
     post_checksum_bytes = more_info_bytes + banner_bytes \
       + icon_bytes + emblem_pixel_bytes + end_padding_bytes
-    
-    
-    # Checksum
-    checksum = 0xFFFF
-    generator_polynomial = 0x8408
-    
-    for byte_as_number in post_checksum_bytes:
-        
-        checksum = checksum ^ byte_as_number
-        
-        for i in xrange(8):
-            if checksum & 1 == 1:
-                checksum = (checksum >> 1) ^ generator_polynomial
-            else:
-                checksum = checksum >> 1
-                
-    # Flip all the bits
-    checksum = checksum ^ 0xFFFF
-    
-    checksum_bytes = bytearray(struct.pack(">H", checksum))
-    
-    
+
+    checksum_bytes = checksum(post_checksum_bytes)
+
     emblem_file = open(emblem_full_filename, 'wb')
     emblem_file.write(header_bytes + checksum_bytes + post_checksum_bytes)
     emblem_file.close()
