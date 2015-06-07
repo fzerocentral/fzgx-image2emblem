@@ -17,5 +17,5 @@ pub fn short_name(filename: Option<&str>, seconds: f64) -> Result<String, &'stat
 }
 
 pub fn full_name(filename: Option<&str>) -> String {
-  format!("8P-GFZE-{}.gci", filename)
+  format!("8P-GFZE-{}.gci", filename.unwrap())
 }
