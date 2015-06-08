@@ -15,14 +15,14 @@ from PIL import Image
 def short_filename(filename, seconds_since_start_of_2000):
     if not filename:
        return "fze0200002000{:14X}.dat".format(int(seconds_since_start_of_2000 * 40500000))
-       
-    if len(filename) > 18: 
+
+    if len(filename) > 18:
         raise ValueError("emblem-filename should be 18 characters or less.")
 
     return "fze1-" + filename + ".dat"
 
 
-def emblem_full_filename(filename):
+def full_filename(filename):
     return "8P-GFZE-" + filename + ".gci"
 
 
@@ -43,10 +43,8 @@ def checksum(post_checksum_bytes):
     checksum = checksum ^ 0xFFFF
 
     return bytearray(struct.pack(">H", checksum))
-
+    
 def setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000):
-    print emblem_short_filename
-    print seconds_since_start_of_2000
     header_bytes = bytearray()
 
     # Constant bytes
@@ -99,72 +97,13 @@ def setup_more_info_bytes(args, now):
     return more_info_bytes
 
 
-if __name__ == '__main__':
-
-    # Parse command line arguments.
-    arg_parser = argparse.ArgumentParser(
-        description=""
-    )
-    arg_parser.add_argument(
-        'image_filename',
-        type=str,
-        help=(
-            "Filename of the image file."
-        ),
-    )
-    arg_parser.add_argument(
-        '--emblem-filename',
-        dest='emblem_filename',
-        type=str,
-        help=(
-            "Specify a custom emblem filename to put in place"
-            " of the default timestamp."
-        ),
-    )
-    arg_parser.add_argument(
-        '--edge-option',
-        dest='edge_option',
-        type=str,
-        default='resize62',
-        help=(
-            'Specify what to do about the edges of the 64x64 emblem:'
-            ' "resize62" (default, resize to 62x62 and add empty edges),'
-            ' "crop" (resize to 64x64 and replace the edges with empty pixels),'
-            ' or "resize64" (resize to 64x64; having non-empty edges will make'
-            ' the emblem edges stretch out to cover the entire machine face).'
-        ),
-    )
-    arg_parser.add_argument(
-        '--alpha-threshold',
-        dest='alpha_threshold',
-        type=int,
-        default=1,
-        help=(
-            'Minimum alpha that will be accepted as a non-blank pixel.'
-            ' Acceptable range is 1 to 255. Default is 1.'
-        ),
-    )
-    arg_parser.add_argument(
-        '--additional-comment',
-        dest='additional_comment',
-        action='store_true',
-        help=(
-            "Make the comment field include a note saying it was"
-            " created using third party code. (To distinguish from emblems"
-            " created in-game.)"
-        ),
-    )
-    args = arg_parser.parse_args()
-
-
+def emblem_maker(args):
     now = datetime.datetime.now()
     start_of_2000 = datetime.datetime(2000, 1, 1)
     seconds_since_start_of_2000 = (now - start_of_2000).total_seconds()
 
-
     emblem_short_filename = short_filename(args.emblem_filename, seconds_since_start_of_2000)
-    emblem_full_filename = emblem_full_filename(emblem_short_filename)
-
+    emblem_full_filename = full_filename(emblem_short_filename)
 
     header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
     more_info_bytes = setup_more_info_bytes(args, now)
@@ -291,3 +230,62 @@ if __name__ == '__main__':
     emblem_file = open(emblem_full_filename, 'wb')
     emblem_file.write(header_bytes + checksum_bytes + post_checksum_bytes)
     emblem_file.close()
+
+
+if __name__ == '__main__':
+    # Parse command line arguments.
+    arg_parser = argparse.ArgumentParser(
+        description=""
+    )
+    arg_parser.add_argument(
+        'image_filename',
+        type=str,
+        help=(
+            "Filename of the image file."
+        ),
+    )
+    arg_parser.add_argument(
+        '--emblem-filename',
+        dest='emblem_filename',
+        type=str,
+        help=(
+            "Specify a custom emblem filename to put in place"
+            " of the default timestamp."
+        ),
+    )
+    arg_parser.add_argument(
+        '--edge-option',
+        dest='edge_option',
+        type=str,
+        default='resize62',
+        help=(
+            'Specify what to do about the edges of the 64x64 emblem:'
+            ' "resize62" (default, resize to 62x62 and add empty edges),'
+            ' "crop" (resize to 64x64 and replace the edges with empty pixels),'
+            ' or "resize64" (resize to 64x64; having non-empty edges will make'
+            ' the emblem edges stretch out to cover the entire machine face).'
+        ),
+    )
+    arg_parser.add_argument(
+        '--alpha-threshold',
+        dest='alpha_threshold',
+        type=int,
+        default=1,
+        help=(
+            'Minimum alpha that will be accepted as a non-blank pixel.'
+            ' Acceptable range is 1 to 255. Default is 1.'
+        ),
+    )
+    arg_parser.add_argument(
+        '--additional-comment',
+        dest='additional_comment',
+        action='store_true',
+        help=(
+            "Make the comment field include a note saying it was"
+            " created using third party code. (To distinguish from emblems"
+            " created in-game.)"
+        ),
+    )
+    args = arg_parser.parse_args()
+
+    emblem_maker(args)
