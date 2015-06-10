@@ -233,8 +233,6 @@ def emblem_maker(args):
 
     checksum_bytes = checksum(post_checksum_bytes)
 
-    print len(header_bytes) + len(checksum_bytes) + len(post_checksum_bytes)
-
     emblem_file = open(emblem_full_filename, 'wb')
     emblem_file.write(header_bytes + checksum_bytes + post_checksum_bytes)
     emblem_file.close()
