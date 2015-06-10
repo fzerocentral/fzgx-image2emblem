@@ -15,9 +15,6 @@ def short_filename(filename, seconds_since_start_of_2000):
     if not filename:
        return "fze0200002000{:14X}.dat".format(int(seconds_since_start_of_2000 * 40500000))
 
-    if len(filename) > 18:
-        raise ValueError("emblem-filename should be 18 characters or less.")
-
     return "fze1-" + filename + ".dat"
 
 
@@ -215,11 +212,7 @@ def emblem_maker(args):
     elif args.edge_option == 'resize64':
         # Resize to 64x64.
         img64 = img.resize((64,64), Image.LANCZOS)
-    else:
-        raise ValueError("Invalid edge-option.")
 
-    if args.alpha_threshold < 1 or args.alpha_threshold > 255:
-        raise ValueError("Invalid alpha-threshold.")
     alpha_threshold = args.alpha_threshold
 
     # TODO: Check how the 64 to 32 resize is done by the game. Not a

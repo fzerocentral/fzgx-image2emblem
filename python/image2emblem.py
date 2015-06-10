@@ -65,4 +65,13 @@ if __name__ == '__main__':
     )
     args = arg_parser.parse_args()
 
+    if len(args.emblem_filename) > 18:
+        raise ValueError("emblem-filename should be 18 characters or less.")
+
+    if args.alpha_threshold < 1 or args.alpha_threshold > 255:
+        raise ValueError("Invalid alpha-threshold.")
+
+    if args.edge_option not in ['resize62', 'resize64', 'crop']:
+        raise ValueError("Invalid edge-option.")
+
     emblem_maker(args)
