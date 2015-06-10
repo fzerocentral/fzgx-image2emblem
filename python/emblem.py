@@ -202,6 +202,12 @@ def edge_options(img, edge_option):
 def seconds_since_2000(now):
     return (now - YEAR_2000).total_seconds()
 
+def image(image_filename):
+    img = Image.open(image_filename).convert(mode="RGBA")
+    crop_square(img)
+
+    return img
+
 def emblem_maker(args):
     now = datetime.datetime.now()
     seconds_since_start_of_2000 = seconds_since_2000(now)
@@ -212,9 +218,7 @@ def emblem_maker(args):
     header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
     more_info_bytes = setup_more_info_bytes(now, args.additional_comment)
 
-    img = Image.open(args.image_filename)
-    img = img.convert(mode="RGBA")
-    crop_square(img)
+    img = image(args.image_filename)
 
     # TODO: Test non-RGBA stuff going through crop or resize64.
     # (That, or know when to tell the user to resize/convert themselves...)
