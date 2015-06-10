@@ -10,6 +10,7 @@ import math
 import struct
 from PIL import Image
 
+YEAR_2000 = datetime.datetime(2000, 1, 1)
 
 def short_filename(filename, seconds_since_start_of_2000):
     if not filename:
@@ -198,11 +199,12 @@ def edge_options(img, edge_option):
 
     return img64;
 
+def seconds_since_2000(now):
+    return (now - YEAR_2000).total_seconds()
 
 def emblem_maker(args):
     now = datetime.datetime.now()
-    start_of_2000 = datetime.datetime(2000, 1, 1)
-    seconds_since_start_of_2000 = (now - start_of_2000).total_seconds()
+    seconds_since_start_of_2000 = seconds_since_2000(now)
 
     emblem_short_filename = short_filename(args.emblem_filename, seconds_since_start_of_2000)
     emblem_full_filename = full_filename(emblem_short_filename)
