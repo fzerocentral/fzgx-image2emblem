@@ -211,8 +211,10 @@ def image(image_filename):
 def emblem_maker(args):
     now = datetime.datetime.now()
     seconds_since_start_of_2000 = seconds_since_2000(now)
-
+    alpha_threshold = args.alpha_threshold
+    icon_bytes = icon()
     emblem_short_filename = short_filename(args.emblem_filename, seconds_since_start_of_2000)
+
     emblem_full_filename = full_filename(emblem_short_filename)
 
     header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
@@ -224,8 +226,6 @@ def emblem_maker(args):
     # (That, or know when to tell the user to resize/convert themselves...)
     img64 = edge_options(img, args.edge_option)
 
-    alpha_threshold = args.alpha_threshold
-
     # TODO: Check how the 64 to 32 resize is done by the game. Not a
     # big deal though, it just means the banner may look slightly different
     # than it should in a memcard manager.
@@ -234,7 +234,6 @@ def emblem_maker(args):
 
     emblem_pixel_bytes = emblem(img64_data, alpha_threshold)
     banner_bytes = banner(img32, alpha_threshold)
-    icon_bytes = icon()
 
     # A bunch of zeros until the end of 3 Gamecube memory blocks
     end_padding_bytes = bytearray(0x6040 - 0x40A0)
