@@ -74,7 +74,7 @@ def setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000):
 
     return header_bytes
 
-def setup_more_info_bytes(args, now):
+def setup_more_info_bytes(now, additional_comment):
     more_info_bytes = bytearray()
     # Constant bytes
     more_info_bytes += bytearray([4, 1])
@@ -84,7 +84,7 @@ def setup_more_info_bytes(args, now):
     # File comment followed by 0 padding until 60 bytes
     comment_str = now.strftime("%y/%m/%d %H:%M")
 
-    if args.additional_comment:
+    if additional_comment:
         comment_str += " (Created using third party code)"
 
     more_info_bytes += bytearray(comment_str)
@@ -207,7 +207,7 @@ def emblem_maker(args):
     emblem_full_filename = full_filename(emblem_short_filename)
 
     header_bytes = setup_header_bytes(emblem_short_filename, seconds_since_start_of_2000)
-    more_info_bytes = setup_more_info_bytes(args, now)
+    more_info_bytes = setup_more_info_bytes(now, args.additional_comment)
 
     img = Image.open(args.image_filename)
     img = img.convert(mode="RGBA")
