@@ -65,7 +65,7 @@ if __name__ == '__main__':
     )
     args = arg_parser.parse_args()
 
-    if len(args.emblem_filename) > 18:
+    if args.emblem_filename and len(args.emblem_filename) > 18:
         raise ValueError("emblem-filename should be 18 characters or less.")
 
     if args.alpha_threshold < 1 or args.alpha_threshold > 255:
