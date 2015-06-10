@@ -176,6 +176,27 @@ def icon():
     """
     return open("../common/emblem_icon", 'rb').read()
 
+def edge_options(img, edge_option):
+    # Image.LANCZOS constant requires Pillow 2.7 or higher.
+    if edge_option == 'resize62':
+        # Resize to 62x62, then paste into the middle of an empty 64x64 image.
+        img62 = img.resize((62,62), Image.LANCZOS)
+        img64 = Image.new("RGBA", (64,64), (0,0,0,0))
+        img64.paste(img62, box=(1,1))
+    elif edge_option == 'crop':
+        # Resize to 64x64 and replace the edges with empty pixels.
+        img64 = img.resize((64,64), Image.LANCZOS)
+        for i in xrange(64):
+            img64.putpixel((0,i), (0,0,0,0))
+            img64.putpixel((63,i), (0,0,0,0))
+            img64.putpixel((i,0), (0,0,0,0))
+            img64.putpixel((i,63), (0,0,0,0))
+    elif edge_option == 'resize64':
+        # Resize to 64x64.
+        img64 = img.resize((64,64), Image.LANCZOS)
+
+    return img64;
+
 
 def emblem_maker(args):
     now = datetime.datetime.now()
@@ -194,24 +215,7 @@ def emblem_maker(args):
 
     # TODO: Test non-RGBA stuff going through crop or resize64.
     # (That, or know when to tell the user to resize/convert themselves...)
-
-    # Image.LANCZOS constant requires Pillow 2.7 or higher.
-    if args.edge_option == 'resize62':
-        # Resize to 62x62, then paste into the middle of an empty 64x64 image.
-        img62 = img.resize((62,62), Image.LANCZOS)
-        img64 = Image.new("RGBA", (64,64), (0,0,0,0))
-        img64.paste(img62, box=(1,1))
-    elif args.edge_option == 'crop':
-        # Resize to 64x64 and replace the edges with empty pixels.
-        img64 = img.resize((64,64), Image.LANCZOS)
-        for i in xrange(64):
-            img64.putpixel((0,i), (0,0,0,0))
-            img64.putpixel((63,i), (0,0,0,0))
-            img64.putpixel((i,0), (0,0,0,0))
-            img64.putpixel((i,63), (0,0,0,0))
-    elif args.edge_option == 'resize64':
-        # Resize to 64x64.
-        img64 = img.resize((64,64), Image.LANCZOS)
+    img64 = edge_options(img, args.edge_option)
 
     alpha_threshold = args.alpha_threshold
 
