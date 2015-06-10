@@ -99,10 +99,11 @@ def crop_square(img):
     img.size gives a tuple of (width, height).
     Left is inclusive, right is not inclusive; same for upper and lower.
     """
-    min_dimension = min(img.size[0], img.size[1])
-    crop_left = img.size[0] - min_dimension
+    width, height = img.size
+    min_dimension = min(width, height)
+    crop_left = width - min_dimension
     crop_right = crop_left + min_dimension
-    crop_upper = img.size[1] - min_dimension
+    crop_upper = height - min_dimension
     crop_lower = crop_upper + min_dimension
     img = img.crop((crop_left, crop_upper, crop_right, crop_lower))
 
