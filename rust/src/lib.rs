@@ -1,4 +1,5 @@
 pub mod checksum;
+pub mod emblem;
 
 pub fn short_name(filename: Option<&str>, seconds: f64) -> Result<String, &'static str> {
   let multiplier: f64 = 40500000f64;
