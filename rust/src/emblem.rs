@@ -1,3 +1,7 @@
+extern crate byteorder;
+
+use self::byteorder::{ByteOrder, BigEndian};
+
 // typedef struct {
 //         u8 gamecode[4];
 //         u8 company[2];
@@ -20,10 +24,10 @@ const FZGX: [u8; 4] = *b"GFZE";
 const SEGA: [u8; 2] = *b"8P";
 
 pub struct Emblem {
-  pub gamecode:     [u8; 4], // GFZE8P
-  pub company:      [u8; 2], // 0xFF 0x02
-  pub reserved01:    u8,
-  pub banner_fmt:    u8,
+  pub gamecode:     [u8; 4],  // GFZE8P
+  pub company:      [u8; 2],  // 8P
+  pub reserved01:    u8,      // 0xFF
+  pub banner_fmt:    u8,      // 0x02
   pub filename:     [u8; 32],
   pub timestamp:    [u8; 4],
   pub something1:   [u8; 9],  // 0x00 0x00 0x00 0x60 0x00 0x02 0x00 0x03 0x04
@@ -66,5 +70,17 @@ impl Default for Emblem {
           emblem_data:  [0x00; 8192], // emblem pixel data (64 x 64 px)
           padding:      [0x00; 8095] // 0x00 padding
         }
+    }
+}
+
+impl Emblem {
+    pub fn set_filename(self: &mut Self, filename: String) {
+    }
+
+    pub fn set_timestamp(self: &mut Self, time: u32) {
+        // let mut buf = [0x00; 4];
+        // byteorder::BigEndian::write_u32(&mut buf, time);
+        //
+        // self.timestamp = buf;
     }
 }
