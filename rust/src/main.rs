@@ -50,17 +50,6 @@ fn icon() -> [u8; 2048] {
     }
 }
 
-fn setup_header_bytes(emblem: &mut image2emblem::emblem::Emblem, short_name: String, seconds: f64) {
-    emblem.set_filename(short_name);
-    emblem.set_timestamp(seconds as u32);
-}
-
-fn setup_more_info_bytes(emblem: &mut image2emblem::emblem::Emblem, now: DateTime<UTC>) {
-    let comment = format!("{} (Created using Rust awesomeness)", now.format("%y/%m/%d %H:%M"));
-
-    emblem.set_comment(comment);
-}
-
 fn main() {
     let path = Path::new("../../processing/source/ImageToEmblem1_01/data/resources/fzcLogo.png");
     let mut img = image::open(&path).unwrap();
@@ -76,8 +65,11 @@ fn main() {
     let img64 = img.crop(0, 0, 64, 64);
     let img32 = img64.resize(32, 32, image::FilterType::Lanczos3);
 
-    setup_header_bytes(&mut emblem, short_name, seconds_since_2000);
-    setup_more_info_bytes(&mut emblem, now);
+    emblem.set_filename(short_name);
+    emblem.set_timestamp(seconds_since_2000 as u32);
+    let comment = format!("{} (Created using Rust awesomeness)", now.format("%y/%m/%d %H:%M"));
+    emblem.set_comment(comment);
+
     //
     // emblem_pixel_bytes = emblem(img64_data, alpha_threshold)
     // banner_bytes = banner(img32, alpha_threshold)
