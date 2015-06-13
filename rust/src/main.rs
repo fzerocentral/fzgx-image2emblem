@@ -51,11 +51,11 @@ fn icon() -> [u8; 2048] {
 }
 
 fn main() {
-    let path = Path::new("../../processing/source/ImageToEmblem1_01/data/resources/fzcLogo.png");
+    let path = Path::new("../../common/block.png");
     let mut img = image::open(&path).unwrap();
     let now = chrono::UTC::now();
     let seconds_since_2000 = seconds_since_2000(now);
-    let alpha_threshold = 1;
+    let alpha_threshold: i8 = 1;
     let icon_bytes = icon();
     let mut emblem = image2emblem::emblem::Emblem::default();
 
@@ -70,16 +70,14 @@ fn main() {
     let comment = format!("{} (Created using Rust awesomeness)", now.format("%y/%m/%d %H:%M"));
     emblem.set_comment(comment);
 
-    //
-    // emblem_pixel_bytes = emblem(img64_data, alpha_threshold)
-    // banner_bytes = banner(img32, alpha_threshold)
-    //
-    // # A bunch of zeros until the end of 3 Gamecube memory blocks
-    // end_padding_bytes = bytearray(0x6040 - 0x40A0)
-    //
+    emblem.set_emblem_data(img64, alpha_threshold);
+    emblem.set_banner_data(img32, alpha_threshold);
+    emblem.checksum();
+
     // post_checksum_bytes = more_info_bytes + banner_bytes \
     //   + icon_bytes + emblem_pixel_bytes + end_padding_bytes
     //
+
     // checksum_bytes = checksum(post_checksum_bytes)
     //
     // emblem_file = open(emblem_full_filename, 'wb')

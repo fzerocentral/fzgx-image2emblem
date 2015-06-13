@@ -9,7 +9,7 @@ pub fn checksum(bytes: &[u8]) -> [u8; 2] {
   for byte in bytes {
     checksum = checksum ^ byte;
 
-    for i in (0..8) {
+    for _ in (0..8) {
       if checksum & 1 == 1 {
         checksum = (checksum >> 1) ^ generator_polynomial
       } else {

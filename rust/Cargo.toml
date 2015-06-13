@@ -7,3 +7,4 @@ authors = ["Ricardo Mendes <rokusu@gmail.com>"]
 byteorder = "0.3.9"
 image = "0.3.11"
 chrono = "0.2"
+itertools = "0.3"

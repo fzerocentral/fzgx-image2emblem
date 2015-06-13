@@ -1,6 +1,10 @@
 extern crate byteorder;
+extern crate image;
+extern crate itertools;
 
 use self::byteorder::{ByteOrder, BigEndian};
+use self::image::GenericImage;
+use self::itertools::Itertools;
 
 // typedef struct {
 //   00    u8 gamecode[4];
@@ -114,6 +118,46 @@ impl Default for Emblem {
     }
 }
 
+fn read_block(emblem_data: &mut Vec<u8>, image: &image::DynamicImage,
+  alpha_threshold: i8, i: u32, j: u32) {
+    let i = i as u32;
+    let j = j as u32;
+
+    for x in i..i+4 {
+        for y in j..j+4 {
+            let pixel = image.get_pixel(i, j).data;
+            let r = pixel[0];
+            let g = pixel[1];
+            let b = pixel[2];
+            let a = pixel[3];
+
+            match a < alpha_threshold as u8 {
+                true => { emblem_data.push(0x00); },
+                false => {
+                    let red   = ((r as f32) / 8.0).floor() as u16;
+                    let green = ((r as f32) / 8.0).floor() as u16;
+                    let blue  = ((r as f32) / 8.0).floor() as u16;
+                    let alpha: u16 = 1;
+                    let value: u16 = 32768*alpha + 1024*red + 32*green + blue;
+
+                    let mut buf: [u8; 2] = [0x00; 2];
+                    byteorder::BigEndian::write_u16(&mut buf, value as u16);
+
+                    for byte in buf.iter() {
+                        emblem_data.push(*byte);
+                    }
+                }
+            }
+
+            // print!("{} {} {} {} ", r, g, b, a);
+        }
+
+        // println!("");
+    }
+    // println!("");
+}
+
+
 impl Emblem {
     pub fn set_filename(self: &mut Self, filename: String) {
         let bytes = filename.as_bytes();
@@ -135,6 +179,34 @@ impl Emblem {
 
         for i in 0..comment_bytes.len() {
             self.file_comment[i] = comment_bytes[i];
+        }
+    }
+
+    pub fn set_emblem_data(self: &mut Self, image: image::DynamicImage, alpha_threshold: i8) {
+        let mut v = Vec::new();
+
+        for block_row in (0..image.width()).step(4) {
+            for block_col in (0..image.width()).step(4) {
+                read_block(&mut v, &image, alpha_threshold, block_row, block_col);
+            }
+        }
+
+        for i in 0..v.len() {
+            self.emblem_data[i] = v[i];
+        }
+    }
+
+    pub fn set_banner_data(self: &mut Self, image: image::DynamicImage, alpha_threshold: i8) {
+        let mut v = Vec::new();
+
+        for block_row in (0..image.width()).step(4) {
+            for block_col in (0..image.width()).step(4) {
+                read_block(&mut v, &image, alpha_threshold, block_row, block_col);
+            }
+        }
+
+        for i in 0..v.len() {
+            self.banner_data[i] = v[i];
         }
     }
 }
