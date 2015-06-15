@@ -1,7 +1,7 @@
 pub mod checksum;
 pub mod emblem;
 
-pub fn short_name(filename: Option<&str>, seconds: f64) -> String {
+pub fn short_name(seconds: f64) -> String {
   let multiplier: f64 = 40500000f64;
   let tick: u64 = (seconds * multiplier) as u64;
 

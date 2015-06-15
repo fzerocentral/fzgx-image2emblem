@@ -6,10 +6,9 @@ extern crate byteorder;
 
 use std::fs::File;
 use std::path::Path;
-use image::GenericImage;
 use chrono::*;
 use std::io::prelude::*;
-use byteorder::{ByteOrder, BigEndian};
+use std::process::exit;
 
 
 fn python_total_seconds(microseconds: i64) -> f64 {
@@ -50,6 +49,7 @@ fn icon() -> [u8; 2048] {
     }
 }
 
+
 fn main() {
     let path = Path::new("../../common/block.png");
     let mut img = image::open(&path).unwrap();
@@ -59,7 +59,7 @@ fn main() {
     let icon_bytes = icon();
     let mut emblem = image2emblem::emblem::Emblem::default();
 
-    let short_name = image2emblem::short_name(None, seconds_since_2000);
+    let short_name = image2emblem::short_name(seconds_since_2000);
     let full_name = image2emblem::full_name(&short_name);
 
     let img64 = img.crop(0, 0, 64, 64);
@@ -68,19 +68,19 @@ fn main() {
     emblem.set_filename(short_name);
     emblem.set_timestamp(seconds_since_2000 as u32);
     let comment = format!("{} (Created using Rust awesomeness)", now.format("%y/%m/%d %H:%M"));
-    emblem.set_comment(comment);
 
+    emblem.set_comment(comment);
     emblem.set_emblem_data(img64, alpha_threshold);
     emblem.set_banner_data(img32, alpha_threshold);
-    emblem.checksum();
+    emblem.set_icon_data(icon_bytes);
+    emblem.set_checksum();
 
-    // post_checksum_bytes = more_info_bytes + banner_bytes \
-    //   + icon_bytes + emblem_pixel_bytes + end_padding_bytes
-    //
+    let mut emblem_file = File::create(full_name).unwrap();
 
-    // checksum_bytes = checksum(post_checksum_bytes)
-    //
-    // emblem_file = open(emblem_full_filename, 'wb')
-    // emblem_file.write(header_bytes + checksum_bytes + post_checksum_bytes)
-    // emblem_file.close()
+    let result = emblem_file.write_all(&emblem.as_bytes());
+
+    match result {
+        Ok(_) => exit(0),
+        Err(err) => panic!("Was not possible to write to file: {}", err)
+    }
 }
