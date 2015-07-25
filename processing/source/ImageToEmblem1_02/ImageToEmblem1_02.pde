@@ -11,7 +11,7 @@ GUI gui = new GUI();
 
 /* INITIALIZE VARIABLES */
 //6 character limit
-String versionNumber = "v1.01";
+String versionNumber = "v1.02";
 String inputFileName;
 String outputFileName = null; //Gets filled later
 
