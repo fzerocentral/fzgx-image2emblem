@@ -11,6 +11,9 @@ tested. Please report any issues to the above mentioned email.
 
 Revision History:
 
+1.02
+-Fixed finding/naming emblems on Windows OSs. Emblem conversion now works in Windows.
+
 1.01
 -Fixed a bug where files would sometimes not get converted.
 -Revised file naming conventions upon output.
