@@ -7,10 +7,20 @@
 
 import datetime
 import math
+import os
 import struct
 from PIL import Image
 
 YEAR_2000 = datetime.datetime(2000, 1, 1)
+
+# Find this script's directory, then navigate from there to the common
+# directory, which has some files we need to read.
+# This way of specifying the directory is better than '../common' since the
+# script's directory doesn't have to be the current working directory.
+# http://stackoverflow.com/a/9350788/
+script_dir = os.path.dirname(os.path.realpath(__file__))
+common_dir = os.path.join(script_dir, os.pardir, 'common')
+
 
 def short_filename(filename, seconds_since_start_of_2000):
     if not filename:
@@ -143,7 +153,8 @@ def banner(img32, alpha_threshold):
     emblem file. (The left 2/3rds of the banner are the same for
     every emblem.)
     """
-    banner_base_file = open("../common/emblem_banner_base", 'rb')
+    banner_base_file = open(
+        os.path.join(common_dir, 'emblem_banner_base'), 'rb')
     banner_bytes = bytearray()
     img32_data = img32.getdata()
 
@@ -176,7 +187,7 @@ def icon():
     emblem file's icon, in the same pixel format as any emblem file.
     (The icon is the same for every emblem.)
     """
-    return open("../common/emblem_icon", 'rb').read()
+    return open(os.path.join(common_dir, 'emblem_icon'), 'rb').read()
 
 def edge_options(img, edge_option):
     # Image.LANCZOS constant requires Pillow 2.7 or higher.
