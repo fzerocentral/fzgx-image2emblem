@@ -81,7 +81,7 @@ int screenHeight = 350;
 /* LOAD FILE VARIABLES*/
 boolean loadFileFunctionHasNotRun = true;
 boolean fileWasLoaded;
-  
+
 /* HEADER VARIABLES */
 byte[] gameTitle;
 byte[] gameID;
@@ -103,10 +103,10 @@ int iconPixel = 0;
 
 void setup() {
   frameRate(30);
-  
+
   //Load blank banner data on start
   bannerData = loadBytes("data/resources/emblem_banner_blank");
-  
+
   fzcLogo = loadImage("data/resources/fzcLogo.png");
   size(screenWidth, screenHeight);
   background(255, 242, 225);
@@ -115,7 +115,7 @@ void setup() {
   //image(bg, 0, 0);
   image(fzcLogo, 20, 20, 110, 110);
   gui.GUI();
-  
+
   //Hackish. Run click once to display graphics, otherwise screen is blank
   mousePressed();
 }
@@ -133,45 +133,43 @@ void keyPressed(){
   }
 }
 
-
-void MakeFile(){  
+void MakeFile(){
   //Run through functions to build file
   make.LoadFile();
-  
-  //if file was loaded, run further code
-  if (fileWasLoaded){
-    make.Header();
-    make.FormatColorData();
-    make.BannerData();
-    make.EmblemData();
-    make.OutputFile();
-  }
-}
+  println("Making file...");
 
+  //if file was loaded, run further code
+  if (!fileWasLoaded) {
+    println("File not loaded. sorry~");
+    return;
+  }
+
+  make.Header();
+  make.FormatColorData();
+  make.BannerData();
+  make.EmblemData();
+  make.OutputFile();
+}
 
 //For some reason does not like running from class, so I left it in the main sketch
 void LoadEmblemImage(File _selectedImage) {
-  
   loadFileFunctionHasNotRun = false;
-  
-  if (_selectedImage == null){
+
+  if (_selectedImage == null) {
     println("Image not loaded. Did you cancel?");
     fileWasLoaded = false;
-        
   } else {
     try {
       emblemImage = loadImage(_selectedImage.getAbsolutePath());
       fileWasLoaded = true;
-      
+
       if (emblemImage.pixels.length != (64*64)){
         println("Image is not 64*64! Process aborted!");
         fileWasLoaded = false;
       }
-
     } catch (Exception e){
       fileWasLoaded = false;
       println("An exception occured");
     }
   }
 }
-

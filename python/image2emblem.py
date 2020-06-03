@@ -11,6 +11,29 @@ import math
 import struct
 from PIL import Image
 
+def checksum(post_checksum_bytes):
+    checksum = 0xFFFF
+    generator_polynomial = 0x8408
+
+    for byte_as_number in post_checksum_bytes:
+        checksum = checksum ^ byte_as_number
+
+        for i in xrange(8):
+            if checksum & 1 == 1:
+                checksum = (checksum >> 1) ^ generator_polynomial
+            else:
+                checksum = checksum >> 1
+
+    # Flip all the bits
+    checksum = checksum ^ 0xFFFF
+
+    result = bytearray(struct.pack(">H", checksum))
+    print(checksum)
+    print(result)
+    print(result[0])
+    print(result[1])
+    return result
+
 
 if __name__ == '__main__':
 
@@ -67,14 +90,21 @@ if __name__ == '__main__':
             " created in-game.)"
         ),
     )
+    arg_parser.add_argument(
+        '--checksum',
+        dest="checksum",
+        help=(
+            "Boom"
+        ),
+    )
     args = arg_parser.parse_args()
-    
-    
+
+
     now = datetime.datetime.now()
     start_of_2000 = datetime.datetime(2000, 1, 1)
     seconds_since_start_of_2000 = (now - start_of_2000).total_seconds()
-    
-    
+
+
     if args.emblem_filename:
         if len(args.emblem_filename) > 18:
             raise ValueError("emblem-filename should be 18 characters or less.")
@@ -84,8 +114,8 @@ if __name__ == '__main__':
             int(seconds_since_start_of_2000 * 40500000)
         )
     emblem_full_filename = "8P-GFZE-" + emblem_short_filename + ".gci"
-    
-    
+
+
     header_bytes = bytearray()
     # Constant bytes
     header_bytes += bytearray("GFZE8P")
@@ -110,7 +140,7 @@ if __name__ == '__main__':
     header_bytes += bytearray(struct.pack(">H", 0))
     # Constant bytes
     header_bytes += bytearray([0, 3, 0xFF, 0xFF, 0, 0, 0, 4])
-    
+
     more_info_bytes = bytearray()
     # Constant bytes
     more_info_bytes += bytearray([4, 1])
@@ -123,13 +153,13 @@ if __name__ == '__main__':
         comment_str += " (Created using third party code)"
     more_info_bytes += bytearray(comment_str)
     more_info_bytes += bytearray(60 - len(comment_str))
-    
-    
+
+
     img = Image.open(args.image_filename)
-    
+
     # Convert the image to RGBA.
     img = img.convert(mode="RGBA")
-    
+
     # Crop to a square.
     # img.size gives a tuple of (width, height).
     # Left is inclusive, right is not inclusive; same for upper and lower.
@@ -139,10 +169,10 @@ if __name__ == '__main__':
     crop_upper = img.size[1] - min_dimension
     crop_lower = crop_upper + min_dimension
     img = img.crop((crop_left, crop_upper, crop_right, crop_lower))
-    
+
     # TODO: Test non-RGBA stuff going through crop or resize64.
     # (That, or know when to tell the user to resize/convert themselves...)
-    
+
     # Image.LANCZOS constant requires Pillow 2.7 or higher.
     if args.edge_option == 'resize62':
         # Resize to 62x62, then paste into the middle of an empty 64x64 image.
@@ -162,19 +192,19 @@ if __name__ == '__main__':
         img64 = img.resize((64,64), Image.LANCZOS)
     else:
         raise ValueError("Invalid edge-option.")
-        
+
     if args.alpha_threshold < 1 or args.alpha_threshold > 255:
         raise ValueError("Invalid alpha-threshold.")
     alpha_threshold = args.alpha_threshold
-    
+
     # TODO: Check how the 64 to 32 resize is done by the game. Not a
     # big deal though, it just means the banner may look slightly different
     # than it should in a memcard manager.
     img32 = img.resize((32,32), Image.LANCZOS)
-    
+
     emblem_pixel_bytes = bytearray()
     img64_data = img64.getdata()
-    
+
     # Emblem (64x64)
     # Go through the pixels in 4x4 blocks, left to right and top to
     # bottom. This is the order that the emblem data must be stored in.
@@ -194,11 +224,11 @@ if __name__ == '__main__':
                         value = 32768*alpha + 1024*red + 32*green + blue
                     else:
                         value = 0
-                    emblem_pixel_bytes += bytearray(struct.pack(">H", value)) 
-    
-    
+                    emblem_pixel_bytes += bytearray(struct.pack(">H", value))
+
+
     # Banner (96x32)
-    
+
     # emblem_banner_base is a pre-existing file that contains the left 2/3rds
     # of an F-Zero GX emblem file's banner, in the same pixel format as any
     # emblem file. (The left 2/3rds of the banner are the same for
@@ -206,7 +236,7 @@ if __name__ == '__main__':
     banner_base_file = open("../common/emblem_banner_base", 'rb')
     banner_bytes = bytearray()
     img32_data = img32.getdata()
-    
+
     # We now have the banner with blank pixels in the emblem preview. Now
     # we'll fill in that emblem preview.
     for block_row in xrange(8):
@@ -226,44 +256,26 @@ if __name__ == '__main__':
                     else:
                         value = 0
                     banner_bytes += bytearray(struct.pack(">H", value))
-    
-    
+
+
     # Icon (32x32)
-    
+
     # emblem_icon is a pre-existing file that contains an F-Zero GX
     # emblem file's icon, in the same pixel format as any emblem file.
     # (The icon is the same for every emblem.)
     icon_file = open("../common/emblem_icon", 'rb')
     icon_bytes = icon_file.read()
-    
-    
+
+
     # A bunch of zeros until the end of 3 Gamecube memory blocks
     end_padding_bytes = bytearray(0x6040 - 0x40A0)
-    
+
     post_checksum_bytes = more_info_bytes + banner_bytes \
       + icon_bytes + emblem_pixel_bytes + end_padding_bytes
-    
-    
-    # Checksum
-    checksum = 0xFFFF
-    generator_polynomial = 0x8408
-    
-    for byte_as_number in post_checksum_bytes:
-        
-        checksum = checksum ^ byte_as_number
-        
-        for i in xrange(8):
-            if checksum & 1 == 1:
-                checksum = (checksum >> 1) ^ generator_polynomial
-            else:
-                checksum = checksum >> 1
-                
-    # Flip all the bits
-    checksum = checksum ^ 0xFFFF
-    
-    checksum_bytes = bytearray(struct.pack(">H", checksum))
-    
-    
+
+    checksum_bytes = checksum(post_checksum_bytes)
+
+
     emblem_file = open(emblem_full_filename, 'wb')
     emblem_file.write(header_bytes + checksum_bytes + post_checksum_bytes)
     emblem_file.close()

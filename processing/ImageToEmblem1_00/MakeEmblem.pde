@@ -1,26 +1,28 @@
-
-
-
-
-
-
-class MakeEmblem{
-
-
+class MakeEmblem {
+  
+  final byte[] US_REGION = "GFZE8P".getBytes();
+  final byte[] JP_REGION = "GFZJ8P".getBytes();
+  final byte[] PAL_REGION = "GFZP8P".getBytes();
+  
+  final byte[][] REGIONS = new byte[][] { US_REGION, JP_REGION, PAL_REGION };
+  
+  byte[] getRegion() {
+    if (region[0]){ //US
+      return US_REGION;
+    } else if (region[1]){
+      return JP_REGION;
+    } else if (region[2]){ //PAL
+      return PAL_REGION;
+    }
+    
+    return US_REGION;
+  }
 
   void Header() {
-  
     outputFileName = "fze0200002000" + versionNumber + hex(timeStamp.CurrentDate(), 8) + ".dat";
     
     //Set region. Not sure if it actually matters or not
-    if (region[0]){ //US
-      gameID    = "GFZE8P".getBytes();
-    } else if (region[1]){ //JP
-      gameID    = "GFZJ8P".getBytes();
-    } else if (region[2]){ //PAL
-      gameID    = "GFZP8P".getBytes();
-    }
-    
+    gameID = getRegion();
     gameTitle = "F-ZERO GX".getBytes();
     dataName  = outputFileName.getBytes();
   
@@ -65,7 +67,7 @@ class MakeEmblem{
     selectInput("Load Emblem Image 64x64", "LoadEmblemImage");
     
     //Until input is selected, delay further progress, otherwise the proceeding code would run without a source file
-    while (emblemImage == null && loadFileFunctionHasNotRun){
+    while (emblemImage == null && loadFileFunctionHasNotRun) {
       //delay every run until file is loaded 
       delay(100); //Delay by 100ms
     } 
@@ -190,22 +192,18 @@ class MakeEmblem{
 }
 
 
-  void MakeChecksum(){
-    
+  void MakeChecksum() {
     int checksum = 0xFFFF;
     int generatorPolynomial = 0x8408;
     
     //for all data after checksum
-    for (int i = 0x42; i < emblemFile.length; i ++){
-      
+    for (int i = 0x42; i < emblemFile.length; i ++) {
       checksum = checksum ^ ((emblemFile[i]) & 0xFF);
       
       //For each bit in byte
-      for (int j = 8; j> 0; j--){
-        
-        if ((checksum & 1) == 1){
+      for (int j = 8; j> 0; j--) {
+        if ((checksum & 1) == 1) {
           checksum  = (checksum >>> 1) ^ generatorPolynomial;
-  
         } else {
           checksum  = (checksum >>> 1);
         }
